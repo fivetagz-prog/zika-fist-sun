@@ -296,9 +296,11 @@ local function makePartSelector(labelText, parts, callback)
 end
 
 local espEnabled = false
-local showHealth = false
-local showHealthNum = false
-local showNamesStuds = false
+local showHealth = true
+local showHealthNum = true
+local showNamesStuds = true
+local aimbotEnabled = false
+local autoFireEnabled = false
 local espObjects = {}
 
 local function isAnomalyPlayer(player)
@@ -485,10 +487,10 @@ local function attachESP(player)
         healthConn = healthConn,
         studConn   = studConn,
         diedConn   = diedConn,
-        barBG      = barBG,
-        hpLbl      = hpLbl,
         nameLbl    = nameLbl,
         userStudsLbl = userStudsLbl,
+        barBG      = barBG,
+        hpLbl      = hpLbl,
     }
 end
 
@@ -540,6 +542,14 @@ end)
 local selectedTarget = nil
 local aimPart = "Head"
 
+makeToggle("Aimbot", function(state)
+    aimbotEnabled = state
+end)
+
+makeToggle("Auto Fire", function(state)
+    autoFireEnabled = state
+end)
+
 makeToggle("Esp Cham", function(state)
     espEnabled = state
     if state then
@@ -549,14 +559,10 @@ makeToggle("Esp Cham", function(state)
     end
 end)
 
-makePartSelector("Aim Part", {"Head", "Torso"}, function(part)
-    aimPart = part
-end)
-
 makeToggle("Show Health", function(state)
     showHealth = state
     for _, data in pairs(espObjects) do
-        if data.barBG then
+        if data and data.barBG then
             data.barBG.Visible = state
         end
     end
@@ -565,7 +571,7 @@ end)
 makeToggle("Show Health Number", function(state)
     showHealthNum = state
     for _, data in pairs(espObjects) do
-        if data.hpLbl then
+        if data and data.hpLbl then
             data.hpLbl.Visible = state
         end
     end
@@ -574,11 +580,15 @@ end)
 makeToggle("Show Names and Studs", function(state)
     showNamesStuds = state
     for _, data in pairs(espObjects) do
-        if data.nameLbl and data.userStudsLbl then
+        if data and data.nameLbl and data.userStudsLbl then
             data.nameLbl.Visible = state
             data.userStudsLbl.Visible = state
         end
     end
+end)
+
+makePartSelector("Aim Part", {"Head", "Torso"}, function(part)
+    aimPart = part
 end)
 
 local function buildTargetSelector()
