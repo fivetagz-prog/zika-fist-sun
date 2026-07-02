@@ -2,6 +2,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
+local Camera = workspace.CurrentCamera
 
 local function playClick()
     local sound = Instance.new("Sound")
@@ -296,11 +297,6 @@ local function makePartSelector(labelText, parts, callback)
 end
 
 local espEnabled = false
-local showHealth = true
-local showHealthNum = true
-local showNamesStuds = true
-local aimbotEnabled = false
-local autoFireEnabled = false
 local espObjects = {}
 
 local function isAnomalyPlayer(player)
@@ -383,7 +379,6 @@ local function attachESP(player)
     nameLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     nameLbl.TextSize = 13
     nameLbl.Font = Enum.Font.GothamBold
-    nameLbl.Visible = showNamesStuds
     nameLbl.Parent = bb
 
     local userStudsLbl = Instance.new("TextLabel")
@@ -396,7 +391,6 @@ local function attachESP(player)
     userStudsLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     userStudsLbl.TextSize = 11
     userStudsLbl.Font = Enum.Font.Gotham
-    userStudsLbl.Visible = showNamesStuds
     userStudsLbl.Parent = bb
 
     local barBG = Instance.new("Frame")
@@ -404,7 +398,6 @@ local function attachESP(player)
     barBG.Position = UDim2.new(0, 0, 0, 35)
     barBG.BackgroundColor3 = Color3.fromRGB(18, 10, 28)
     barBG.BorderSizePixel = 0
-    barBG.Visible = showHealth
     barBG.Parent = bb
 
     local barBGCorner = Instance.new("UICorner")
@@ -447,8 +440,6 @@ local function attachESP(player)
     hpLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     hpLbl.TextSize = 11
     hpLbl.Font = Enum.Font.GothamBold
-    hpLbl.Text = "HP: ..."
-    hpLbl.Visible = showHealthNum
     hpLbl.Parent = bb
 
     local lastPct = 1
@@ -487,10 +478,6 @@ local function attachESP(player)
         healthConn = healthConn,
         studConn   = studConn,
         diedConn   = diedConn,
-        nameLbl    = nameLbl,
-        userStudsLbl = userStudsLbl,
-        barBG      = barBG,
-        hpLbl      = hpLbl,
     }
 end
 
@@ -541,14 +528,8 @@ end)
 
 local selectedTarget = nil
 local aimPart = "Head"
-
-makeToggle("Aimbot", function(state)
-    aimbotEnabled = state
-end)
-
-makeToggle("Auto Fire", function(state)
-    autoFireEnabled = state
-end)
+local aimbotEnabled = false
+local aimlockEnabled = false
 
 makeToggle("Esp Cham", function(state)
     espEnabled = state
@@ -559,36 +540,33 @@ makeToggle("Esp Cham", function(state)
     end
 end)
 
-makeToggle("Show Health", function(state)
-    showHealth = state
-    for _, data in pairs(espObjects) do
-        if data and data.barBG then
-            data.barBG.Visible = state
-        end
-    end
-end)
-
-makeToggle("Show Health Number", function(state)
-    showHealthNum = state
-    for _, data in pairs(espObjects) do
-        if data and data.hpLbl then
-            data.hpLbl.Visible = state
-        end
-    end
-end)
-
-makeToggle("Show Names and Studs", function(state)
-    showNamesStuds = state
-    for _, data in pairs(espObjects) do
-        if data and data.nameLbl and data.userStudsLbl then
-            data.nameLbl.Visible = state
-            data.userStudsLbl.Visible = state
-        end
-    end
-end)
-
 makePartSelector("Aim Part", {"Head", "Torso"}, function(part)
     aimPart = part
+end)
+
+makeToggle("Aimbot", function(state)
+    aimbotEnabled = state
+end)
+
+makeToggle("Aimlock", function(state)
+    aimlockEnabled = state
+end)
+
+RunService.RenderStepped:Connect(function()
+    if (aimbotEnabled or aimlockEnabled) and selectedTarget and selectedTarget.Character then
+        local targetChar = selectedTarget.Character
+        local targetPart = targetChar:FindFirstChild(aimPart)
+        local humanoid = targetChar:FindFirstChildOfClass("Humanoid")
+        
+        if targetPart and humanoid and humanoid.Health > 0 then
+            if aimlockEnabled then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPart.Position)
+            elseif aimbotEnabled then
+                local targetRotation = CFrame.new(Camera.CFrame.Position, targetPart.Position)
+                Camera.CFrame = Camera.CFrame:Lerp(targetRotation, 0.2)
+            end
+        end
+    end
 end)
 
 local function buildTargetSelector()
