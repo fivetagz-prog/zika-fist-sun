@@ -2,9 +2,6 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
-local refreshTargetList
 
 local function playClick()
     local sound = Instance.new("Sound")
@@ -13,21 +10,6 @@ local function playClick()
     sound.Parent = game:GetService("SoundService")
     sound:Play()
     game:GetService("Debris"):AddItem(sound, 2)
-end
-
-local function isEnemyPlayer(player)
-    if player == LocalPlayer then return false end
-    if LocalPlayer.Team and player.Team then
-        return player.Team ~= LocalPlayer.Team
-    end
-    return true
-end
-
-local function isAlive(player)
-    local char = player.Character
-    if not char then return false end
-    local humanoid = char:FindFirstChildOfClass("Humanoid")
-    return humanoid and humanoid.Health > 0
 end
 
 local ScreenGui = Instance.new("ScreenGui")
@@ -314,7 +296,16 @@ local function makePartSelector(labelText, parts, callback)
 end
 
 local espEnabled = false
+local showHealth = false
+local showHealthNum = false
+local showNamesStuds = false
 local espObjects = {}
+
+local function isAnomalyPlayer(player)
+    return player ~= LocalPlayer
+        and player.Team ~= nil
+        and player.Team.Name == "Anomalies"
+end
 
 local function healthColor(pct)
     if pct > 0.6 then
@@ -349,7 +340,7 @@ local function detachESP(player)
 end
 
 local function attachESP(player)
-    if not isEnemyPlayer(player) then return end
+    if not isAnomalyPlayer(player) then return end
     detachESP(player)
 
     local char = player.Character
@@ -390,6 +381,7 @@ local function attachESP(player)
     nameLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     nameLbl.TextSize = 13
     nameLbl.Font = Enum.Font.GothamBold
+    nameLbl.Visible = showNamesStuds
     nameLbl.Parent = bb
 
     local userStudsLbl = Instance.new("TextLabel")
@@ -402,6 +394,7 @@ local function attachESP(player)
     userStudsLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
     userStudsLbl.TextSize = 11
     userStudsLbl.Font = Enum.Font.Gotham
+    userStudsLbl.Visible = showNamesStuds
     userStudsLbl.Parent = bb
 
     local barBG = Instance.new("Frame")
@@ -409,6 +402,7 @@ local function attachESP(player)
     barBG.Position = UDim2.new(0, 0, 0, 35)
     barBG.BackgroundColor3 = Color3.fromRGB(18, 10, 28)
     barBG.BorderSizePixel = 0
+    barBG.Visible = showHealth
     barBG.Parent = bb
 
     local barBGCorner = Instance.new("UICorner")
@@ -452,6 +446,7 @@ local function attachESP(player)
     hpLbl.TextSize = 11
     hpLbl.Font = Enum.Font.GothamBold
     hpLbl.Text = "HP: ..."
+    hpLbl.Visible = showHealthNum
     hpLbl.Parent = bb
 
     local lastPct = 1
@@ -490,6 +485,10 @@ local function attachESP(player)
         healthConn = healthConn,
         studConn   = studConn,
         diedConn   = diedConn,
+        barBG      = barBG,
+        hpLbl      = hpLbl,
+        nameLbl    = nameLbl,
+        userStudsLbl = userStudsLbl,
     }
 end
 
@@ -502,27 +501,25 @@ end
 local function hookPlayer(player)
     player.CharacterAdded:Connect(function()
         task.wait(0.15)
-        if espEnabled and isEnemyPlayer(player) then
+        if espEnabled and isAnomalyPlayer(player) then
             attachESP(player)
         end
-        if refreshTargetList then refreshTargetList() end
     end)
     player:GetPropertyChangedSignal("Team"):Connect(function()
         if espEnabled then
-            if isEnemyPlayer(player) then
+            if isAnomalyPlayer(player) then
                 attachESP(player)
             else
                 detachESP(player)
             end
         end
-        if refreshTargetList then refreshTargetList() end
     end)
 end
 
 local function scanPlayers()
     for _, player in ipairs(Players:GetPlayers()) do
         hookPlayer(player)
-        if isEnemyPlayer(player) then
+        if isAnomalyPlayer(player) then
             attachESP(player)
         end
     end
@@ -530,7 +527,7 @@ end
 
 Players.PlayerAdded:Connect(function(player)
     hookPlayer(player)
-    if espEnabled and isEnemyPlayer(player) then
+    if espEnabled and isAnomalyPlayer(player) then
         task.wait(0.15)
         attachESP(player)
     end
@@ -540,15 +537,8 @@ Players.PlayerRemoving:Connect(function(player)
     detachESP(player)
 end)
 
-LocalPlayer:GetPropertyChangedSignal("Team"):Connect(function()
-    clearAllESP()
-    if espEnabled then scanPlayers() end
-    if refreshTargetList then refreshTargetList() end
-end)
-
 local selectedTarget = nil
 local aimPart = "Head"
-local aimbotEnabled = false
 
 makeToggle("Esp Cham", function(state)
     espEnabled = state
@@ -559,12 +549,36 @@ makeToggle("Esp Cham", function(state)
     end
 end)
 
-makeToggle("Aimbot Lock", function(state)
-    aimbotEnabled = state
-end)
-
 makePartSelector("Aim Part", {"Head", "Torso"}, function(part)
     aimPart = part
+end)
+
+makeToggle("Show Health", function(state)
+    showHealth = state
+    for _, data in pairs(espObjects) do
+        if data.barBG then
+            data.barBG.Visible = state
+        end
+    end
+end)
+
+makeToggle("Show Health Number", function(state)
+    showHealthNum = state
+    for _, data in pairs(espObjects) do
+        if data.hpLbl then
+            data.hpLbl.Visible = state
+        end
+    end
+end)
+
+makeToggle("Show Names and Studs", function(state)
+    showNamesStuds = state
+    for _, data in pairs(espObjects) do
+        if data.nameLbl and data.userStudsLbl then
+            data.nameLbl.Visible = state
+            data.userStudsLbl.Visible = state
+        end
+    end
 end)
 
 local function buildTargetSelector()
@@ -590,18 +604,18 @@ local function buildTargetSelector()
         end
         selectedRow = nil
 
-        local enemyPlayers = {}
+        local anomalyPlayers = {}
         for _, player in ipairs(Players:GetPlayers()) do
-            if isEnemyPlayer(player) then
-                table.insert(enemyPlayers, player)
+            if isAnomalyPlayer(player) then
+                table.insert(anomalyPlayers, player)
             end
         end
 
-        if #enemyPlayers == 0 then
+        if #anomalyPlayers == 0 then
             local lbl = Instance.new("TextLabel")
             lbl.Size = UDim2.new(1, 0, 0, 30)
             lbl.BackgroundTransparency = 1
-            lbl.Text = "No Enemy players found"
+            lbl.Text = "No Anomaly players found"
             lbl.TextColor3 = Color3.fromRGB(130, 130, 160)
             lbl.TextSize = 12
             lbl.Font = Enum.Font.Gotham
@@ -609,7 +623,7 @@ local function buildTargetSelector()
             return
         end
 
-        for _, player in ipairs(enemyPlayers) do
+        for _, player in ipairs(anomalyPlayers) do
             local row = Instance.new("Frame")
             row.Size = UDim2.new(1, 0, 0, 56)
             row.BackgroundColor3 = Color3.fromRGB(20, 13, 36)
@@ -724,7 +738,6 @@ local function buildTargetSelector()
     end
 
     refreshList()
-    refreshTargetList = refreshList
 
     local refreshBtn = Instance.new("TextButton")
     refreshBtn.Size = UDim2.new(1, 0, 0, 32)
@@ -766,26 +779,3 @@ local function buildTargetSelector()
 end
 
 buildTargetSelector()
-
-RunService.RenderStepped:Connect(function()
-    if aimbotEnabled and selectedTarget and isEnemyPlayer(selectedTarget) and isAlive(selectedTarget) then
-        local char = selectedTarget.Character
-        if char then
-            local targetPartName = aimPart
-            if targetPartName == "Torso" then
-                if char:FindFirstChild("UpperTorso") then
-                    targetPartName = "UpperTorso"
-                elseif not char:FindFirstChild("Torso") and char:FindFirstChild("HumanoidRootPart") then
-                    targetPartName = "HumanoidRootPart"
-                end
-            end
-            local targetPart = char:FindFirstChild(targetPartName)
-            if targetPart then
-                Camera.CFrame = CFrame.new(Camera.CFrame.Position, targetPart.Position)
-            end
-        end
-    elseif selectedTarget and (not isEnemyPlayer(selectedTarget) or not isAlive(selectedTarget)) then
-        selectedTarget = nil
-        if refreshTargetList then refreshTargetList() end
-    end
-end)
