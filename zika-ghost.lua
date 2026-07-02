@@ -103,7 +103,7 @@ local SubLabel = Instance.new("TextLabel")
 SubLabel.Size = UDim2.new(1, -60, 0, 16)
 SubLabel.Position = UDim2.new(0, 14, 0, 36)
 SubLabel.BackgroundTransparency = 1
-SubLabel.Text = "Enemy Tracking Edition"
+SubLabel.Text = "Esp idk"
 SubLabel.TextColor3 = Color3.fromRGB(170, 200, 255)
 SubLabel.TextSize = 11
 SubLabel.Font = Enum.Font.Gotham
@@ -384,7 +384,7 @@ local function attachESP(player)
     nameLbl.Size = UDim2.new(1, 0, 0, 18)
     nameLbl.Position = UDim2.new(0, 0, 0, 0)
     nameLbl.BackgroundTransparency = 1
-    nameLbl.Text = "Enemy"
+    nameLbl.Text = "Anomaly"
     nameLbl.TextColor3 = Color3.fromRGB(255, 70, 70)
     nameLbl.TextStrokeTransparency = 0.2
     nameLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
