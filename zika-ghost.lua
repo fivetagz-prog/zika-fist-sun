@@ -13,6 +13,31 @@ local function playClick()
     game:GetService("Debris"):AddItem(sound, 2)
 end
 
+local function addCorner(parent, radius)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = radius
+    corner.Parent = parent
+    return corner
+end
+
+local function addStroke(parent, color, thickness)
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = color
+    stroke.Thickness = thickness
+    stroke.Parent = parent
+    return stroke
+end
+
+local function makeLabel(parent, props)
+    local label = Instance.new("TextLabel")
+    label.BackgroundTransparency = 1
+    for key, value in pairs(props) do
+        label[key] = value
+    end
+    label.Parent = parent
+    return label
+end
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "ZikaHub"
 ScreenGui.ResetOnSpawn = false
@@ -29,14 +54,8 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Parent = ScreenGui
 
-local UICorner = Instance.new("UICorner")
-UICorner.CornerRadius = UDim.new(0, 14)
-UICorner.Parent = MainFrame
-
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Color = Color3.fromRGB(110, 50, 210)
-UIStroke.Thickness = 1.5
-UIStroke.Parent = MainFrame
+addCorner(MainFrame, UDim.new(0, 14))
+addStroke(MainFrame, Color3.fromRGB(110, 50, 210), 1.5)
 
 local HeaderFrame = Instance.new("Frame")
 HeaderFrame.Size = UDim2.new(1, 0, 0, 54)
@@ -44,9 +63,7 @@ HeaderFrame.BackgroundColor3 = Color3.fromRGB(100, 40, 200)
 HeaderFrame.BorderSizePixel = 0
 HeaderFrame.Parent = MainFrame
 
-local HeaderCorner = Instance.new("UICorner")
-HeaderCorner.CornerRadius = UDim.new(0, 14)
-HeaderCorner.Parent = HeaderFrame
+addCorner(HeaderFrame, UDim.new(0, 14))
 
 local HeaderFix = Instance.new("Frame")
 HeaderFix.Size = UDim2.new(1, 0, 0, 14)
@@ -71,27 +88,25 @@ RunService.Heartbeat:Connect(function(dt)
     HeaderGradient.Rotation = 90 + t * 22
 end)
 
-local TitleLabel = Instance.new("TextLabel")
-TitleLabel.Size = UDim2.new(1, -60, 0, 28)
-TitleLabel.Position = UDim2.new(0, 14, 0, 8)
-TitleLabel.BackgroundTransparency = 1
-TitleLabel.Text = "Zika Hub"
-TitleLabel.TextColor3 = Color3.fromRGB(235, 225, 255)
-TitleLabel.TextSize = 19
-TitleLabel.Font = Enum.Font.GothamBold
-TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
-TitleLabel.Parent = HeaderFrame
+makeLabel(HeaderFrame, {
+    Size = UDim2.new(1, -60, 0, 28),
+    Position = UDim2.new(0, 14, 0, 8),
+    Text = "Zika Hub",
+    TextColor3 = Color3.fromRGB(235, 225, 255),
+    TextSize = 19,
+    Font = Enum.Font.GothamBold,
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
 
-local SubLabel = Instance.new("TextLabel")
-SubLabel.Size = UDim2.new(1, -60, 0, 16)
-SubLabel.Position = UDim2.new(0, 14, 0, 36)
-SubLabel.BackgroundTransparency = 1
-SubLabel.Text = "Esp idk"
-SubLabel.TextColor3 = Color3.fromRGB(170, 200, 255)
-SubLabel.TextSize = 11
-SubLabel.Font = Enum.Font.Gotham
-SubLabel.TextXAlignment = Enum.TextXAlignment.Left
-SubLabel.Parent = HeaderFrame
+makeLabel(HeaderFrame, {
+    Size = UDim2.new(1, -60, 0, 16),
+    Position = UDim2.new(0, 14, 0, 36),
+    Text = "Esp idk",
+    TextColor3 = Color3.fromRGB(170, 200, 255),
+    TextSize = 11,
+    Font = Enum.Font.Gotham,
+    TextXAlignment = Enum.TextXAlignment.Left,
+})
 
 local minimized = false
 local fullHeight = 420
@@ -107,14 +122,8 @@ MinBtn.TextSize = 18
 MinBtn.Font = Enum.Font.GothamBold
 MinBtn.Parent = HeaderFrame
 
-local MinBtnCorner = Instance.new("UICorner")
-MinBtnCorner.CornerRadius = UDim.new(0, 7)
-MinBtnCorner.Parent = MinBtn
-
-local MinBtnStroke = Instance.new("UIStroke")
-MinBtnStroke.Color = Color3.fromRGB(90, 60, 180)
-MinBtnStroke.Thickness = 1
-MinBtnStroke.Parent = MinBtn
+addCorner(MinBtn, UDim.new(0, 7))
+addStroke(MinBtn, Color3.fromRGB(90, 60, 180), 1)
 
 local ContentFrame = Instance.new("ScrollingFrame")
 ContentFrame.Size = UDim2.new(1, 0, 1, -54)
@@ -156,34 +165,33 @@ UIPadding.PaddingTop = UDim.new(0, 10)
 UIPadding.PaddingBottom = UDim.new(0, 10)
 UIPadding.Parent = ContentFrame
 
+local function makeRow()
+    local row = Instance.new("Frame")
+    row.Size = UDim2.new(1, 0, 0, 44)
+    row.BackgroundColor3 = Color3.fromRGB(22, 15, 40)
+    row.BorderSizePixel = 0
+    row.Parent = ContentFrame
+
+    addCorner(row, UDim.new(0, 9))
+    addStroke(row, Color3.fromRGB(55, 38, 95), 1)
+
+    return row
+end
+
 local function makeToggle(labelText, callback)
     local enabled = false
 
-    local Row = Instance.new("Frame")
-    Row.Size = UDim2.new(1, 0, 0, 44)
-    Row.BackgroundColor3 = Color3.fromRGB(22, 15, 40)
-    Row.BorderSizePixel = 0
-    Row.Parent = ContentFrame
+    local Row = makeRow()
 
-    local RowCorner = Instance.new("UICorner")
-    RowCorner.CornerRadius = UDim.new(0, 9)
-    RowCorner.Parent = Row
-
-    local RowStroke = Instance.new("UIStroke")
-    RowStroke.Color = Color3.fromRGB(55, 38, 95)
-    RowStroke.Thickness = 1
-    RowStroke.Parent = Row
-
-    local RowLabel = Instance.new("TextLabel")
-    RowLabel.Size = UDim2.new(1, -70, 1, 0)
-    RowLabel.Position = UDim2.new(0, 12, 0, 0)
-    RowLabel.BackgroundTransparency = 1
-    RowLabel.Text = labelText
-    RowLabel.TextColor3 = Color3.fromRGB(215, 205, 245)
-    RowLabel.TextSize = 13
-    RowLabel.Font = Enum.Font.Gotham
-    RowLabel.TextXAlignment = Enum.TextXAlignment.Left
-    RowLabel.Parent = Row
+    makeLabel(Row, {
+        Size = UDim2.new(1, -70, 1, 0),
+        Position = UDim2.new(0, 12, 0, 0),
+        Text = labelText,
+        TextColor3 = Color3.fromRGB(215, 205, 245),
+        TextSize = 13,
+        Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left,
+    })
 
     local ToggleBG = Instance.new("Frame")
     ToggleBG.Size = UDim2.new(0, 44, 0, 24)
@@ -192,9 +200,7 @@ local function makeToggle(labelText, callback)
     ToggleBG.BorderSizePixel = 0
     ToggleBG.Parent = Row
 
-    local ToggleBGCorner = Instance.new("UICorner")
-    ToggleBGCorner.CornerRadius = UDim.new(1, 0)
-    ToggleBGCorner.Parent = ToggleBG
+    addCorner(ToggleBG, UDim.new(1, 0))
 
     local Knob = Instance.new("Frame")
     Knob.Size = UDim2.new(0, 18, 0, 18)
@@ -203,9 +209,7 @@ local function makeToggle(labelText, callback)
     Knob.BorderSizePixel = 0
     Knob.Parent = ToggleBG
 
-    local KnobCorner = Instance.new("UICorner")
-    KnobCorner.CornerRadius = UDim.new(1, 0)
-    KnobCorner.Parent = Knob
+    addCorner(Knob, UDim.new(1, 0))
 
     local Button = Instance.new("TextButton")
     Button.Size = UDim2.new(1, 0, 1, 0)
@@ -230,31 +234,17 @@ end
 local function makePartSelector(labelText, parts, callback)
     local selected = parts[1]
 
-    local Row = Instance.new("Frame")
-    Row.Size = UDim2.new(1, 0, 0, 44)
-    Row.BackgroundColor3 = Color3.fromRGB(22, 15, 40)
-    Row.BorderSizePixel = 0
-    Row.Parent = ContentFrame
+    local Row = makeRow()
 
-    local RowCorner = Instance.new("UICorner")
-    RowCorner.CornerRadius = UDim.new(0, 9)
-    RowCorner.Parent = Row
-
-    local RowStroke = Instance.new("UIStroke")
-    RowStroke.Color = Color3.fromRGB(55, 38, 95)
-    RowStroke.Thickness = 1
-    RowStroke.Parent = Row
-
-    local lbl = Instance.new("TextLabel")
-    lbl.Size = UDim2.new(0, 80, 1, 0)
-    lbl.Position = UDim2.new(0, 12, 0, 0)
-    lbl.BackgroundTransparency = 1
-    lbl.Text = labelText
-    lbl.TextColor3 = Color3.fromRGB(215, 205, 245)
-    lbl.TextSize = 13
-    lbl.Font = Enum.Font.Gotham
-    lbl.TextXAlignment = Enum.TextXAlignment.Left
-    lbl.Parent = Row
+    makeLabel(Row, {
+        Size = UDim2.new(0, 80, 1, 0),
+        Position = UDim2.new(0, 12, 0, 0),
+        Text = labelText,
+        TextColor3 = Color3.fromRGB(215, 205, 245),
+        TextSize = 13,
+        Font = Enum.Font.Gotham,
+        TextXAlignment = Enum.TextXAlignment.Left,
+    })
 
     local btns = {}
     for i, part in ipairs(parts) do
@@ -269,14 +259,8 @@ local function makePartSelector(labelText, parts, callback)
         btn.Font = Enum.Font.GothamBold
         btn.Parent = Row
 
-        local btnCorner = Instance.new("UICorner")
-        btnCorner.CornerRadius = UDim.new(0, 6)
-        btnCorner.Parent = btn
-
-        local btnStroke = Instance.new("UIStroke")
-        btnStroke.Color = Color3.fromRGB(80, 55, 160)
-        btnStroke.Thickness = 1
-        btnStroke.Parent = btn
+        addCorner(btn, UDim.new(0, 6))
+        addStroke(btn, Color3.fromRGB(80, 55, 160), 1)
 
         btns[part] = btn
 
@@ -369,29 +353,27 @@ local function attachESP(player)
     bb.Adornee = rootPart
     bb.Parent = container
 
-    local nameLbl = Instance.new("TextLabel")
-    nameLbl.Size = UDim2.new(1, 0, 0, 18)
-    nameLbl.Position = UDim2.new(0, 0, 0, 0)
-    nameLbl.BackgroundTransparency = 1
-    nameLbl.Text = "Anomaly"
-    nameLbl.TextColor3 = Color3.fromRGB(255, 70, 70)
-    nameLbl.TextStrokeTransparency = 0.2
-    nameLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    nameLbl.TextSize = 13
-    nameLbl.Font = Enum.Font.GothamBold
-    nameLbl.Parent = bb
+    makeLabel(bb, {
+        Size = UDim2.new(1, 0, 0, 18),
+        Position = UDim2.new(0, 0, 0, 0),
+        Text = "Anomaly",
+        TextColor3 = Color3.fromRGB(255, 70, 70),
+        TextStrokeTransparency = 0.2,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        TextSize = 13,
+        Font = Enum.Font.GothamBold,
+    })
 
-    local userStudsLbl = Instance.new("TextLabel")
-    userStudsLbl.Size = UDim2.new(1, 0, 0, 14)
-    userStudsLbl.Position = UDim2.new(0, 0, 0, 18)
-    userStudsLbl.BackgroundTransparency = 1
-    userStudsLbl.Text = player.Name .. " | Studs: 0"
-    userStudsLbl.TextColor3 = Color3.fromRGB(190, 210, 255)
-    userStudsLbl.TextStrokeTransparency = 0.2
-    userStudsLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    userStudsLbl.TextSize = 11
-    userStudsLbl.Font = Enum.Font.Gotham
-    userStudsLbl.Parent = bb
+    local userStudsLbl = makeLabel(bb, {
+        Size = UDim2.new(1, 0, 0, 14),
+        Position = UDim2.new(0, 0, 0, 18),
+        Text = player.Name .. " | Studs: 0",
+        TextColor3 = Color3.fromRGB(190, 210, 255),
+        TextStrokeTransparency = 0.2,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        TextSize = 11,
+        Font = Enum.Font.Gotham,
+    })
 
     local barBG = Instance.new("Frame")
     barBG.Size = UDim2.new(1, 0, 0, 10)
@@ -400,14 +382,8 @@ local function attachESP(player)
     barBG.BorderSizePixel = 0
     barBG.Parent = bb
 
-    local barBGCorner = Instance.new("UICorner")
-    barBGCorner.CornerRadius = UDim.new(1, 0)
-    barBGCorner.Parent = barBG
-
-    local barBGStroke = Instance.new("UIStroke")
-    barBGStroke.Color = Color3.fromRGB(55, 38, 75)
-    barBGStroke.Thickness = 1
-    barBGStroke.Parent = barBG
+    addCorner(barBG, UDim.new(1, 0))
+    addStroke(barBG, Color3.fromRGB(55, 38, 75), 1)
 
     local barFill = Instance.new("Frame")
     barFill.Size = UDim2.new(1, 0, 1, 0)
@@ -415,9 +391,7 @@ local function attachESP(player)
     barFill.BorderSizePixel = 0
     barFill.Parent = barBG
 
-    local barFillCorner = Instance.new("UICorner")
-    barFillCorner.CornerRadius = UDim.new(1, 0)
-    barFillCorner.Parent = barFill
+    addCorner(barFill, UDim.new(1, 0))
 
     local barShine = Instance.new("Frame")
     barShine.Size = UDim2.new(1, 0, 0.45, 0)
@@ -427,20 +401,17 @@ local function attachESP(player)
     barShine.ZIndex = 2
     barShine.Parent = barFill
 
-    local barShineCorner = Instance.new("UICorner")
-    barShineCorner.CornerRadius = UDim.new(1, 0)
-    barShineCorner.Parent = barShine
+    addCorner(barShine, UDim.new(1, 0))
 
-    local hpLbl = Instance.new("TextLabel")
-    hpLbl.Size = UDim2.new(1, 0, 0, 14)
-    hpLbl.Position = UDim2.new(0, 0, 0, 48)
-    hpLbl.BackgroundTransparency = 1
-    hpLbl.TextColor3 = Color3.fromRGB(200, 200, 255)
-    hpLbl.TextStrokeTransparency = 0.2
-    hpLbl.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
-    hpLbl.TextSize = 11
-    hpLbl.Font = Enum.Font.GothamBold
-    hpLbl.Parent = bb
+    local hpLbl = makeLabel(bb, {
+        Size = UDim2.new(1, 0, 0, 14),
+        Position = UDim2.new(0, 0, 0, 48),
+        TextColor3 = Color3.fromRGB(200, 200, 255),
+        TextStrokeTransparency = 0.2,
+        TextStrokeColor3 = Color3.fromRGB(0, 0, 0),
+        TextSize = 11,
+        Font = Enum.Font.GothamBold,
+    })
 
     local lastPct = 1
 
@@ -600,14 +571,13 @@ local function buildTargetSelector()
         end
 
         if #anomalyPlayers == 0 then
-            local lbl = Instance.new("TextLabel")
-            lbl.Size = UDim2.new(1, 0, 0, 30)
-            lbl.BackgroundTransparency = 1
-            lbl.Text = "No Anomaly players found"
-            lbl.TextColor3 = Color3.fromRGB(130, 130, 160)
-            lbl.TextSize = 12
-            lbl.Font = Enum.Font.Gotham
-            lbl.Parent = listFrame
+            makeLabel(listFrame, {
+                Size = UDim2.new(1, 0, 0, 30),
+                Text = "No Anomaly players found",
+                TextColor3 = Color3.fromRGB(130, 130, 160),
+                TextSize = 12,
+                Font = Enum.Font.Gotham,
+            })
             return
         end
 
@@ -618,14 +588,8 @@ local function buildTargetSelector()
             row.BorderSizePixel = 0
             row.Parent = listFrame
 
-            local rowCorner = Instance.new("UICorner")
-            rowCorner.CornerRadius = UDim.new(0, 9)
-            rowCorner.Parent = row
-
-            local rowStroke = Instance.new("UIStroke")
-            rowStroke.Color = Color3.fromRGB(55, 38, 95)
-            rowStroke.Thickness = 1
-            rowStroke.Parent = row
+            addCorner(row, UDim.new(0, 9))
+            local rowStroke = addStroke(row, Color3.fromRGB(55, 38, 95), 1)
 
             local avatarImg = Instance.new("ImageLabel")
             avatarImg.Size = UDim2.new(0, 40, 0, 40)
@@ -635,32 +599,28 @@ local function buildTargetSelector()
             avatarImg.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=48&height=48&format=png"
             avatarImg.Parent = row
 
-            local avatarCorner = Instance.new("UICorner")
-            avatarCorner.CornerRadius = UDim.new(0, 6)
-            avatarCorner.Parent = avatarImg
+            addCorner(avatarImg, UDim.new(0, 6))
 
-            local usernameLbl = Instance.new("TextLabel")
-            usernameLbl.Size = UDim2.new(0, 110, 0, 18)
-            usernameLbl.Position = UDim2.new(0, 56, 0, 10)
-            usernameLbl.BackgroundTransparency = 1
-            usernameLbl.Text = player.Name
-            usernameLbl.TextColor3 = Color3.fromRGB(215, 205, 245)
-            usernameLbl.TextSize = 13
-            usernameLbl.Font = Enum.Font.GothamBold
-            usernameLbl.TextXAlignment = Enum.TextXAlignment.Left
-            usernameLbl.TextTruncate = Enum.TextTruncate.AtEnd
-            usernameLbl.Parent = row
+            makeLabel(row, {
+                Size = UDim2.new(0, 110, 0, 18),
+                Position = UDim2.new(0, 56, 0, 10),
+                Text = player.Name,
+                TextColor3 = Color3.fromRGB(215, 205, 245),
+                TextSize = 13,
+                Font = Enum.Font.GothamBold,
+                TextXAlignment = Enum.TextXAlignment.Left,
+                TextTruncate = Enum.TextTruncate.AtEnd,
+            })
 
-            local idLbl = Instance.new("TextLabel")
-            idLbl.Size = UDim2.new(0, 110, 0, 14)
-            idLbl.Position = UDim2.new(0, 56, 0, 30)
-            idLbl.BackgroundTransparency = 1
-            idLbl.Text = "ID: " .. player.UserId
-            idLbl.TextColor3 = Color3.fromRGB(130, 145, 190)
-            idLbl.TextSize = 11
-            idLbl.Font = Enum.Font.Gotham
-            idLbl.TextXAlignment = Enum.TextXAlignment.Left
-            idLbl.Parent = row
+            makeLabel(row, {
+                Size = UDim2.new(0, 110, 0, 14),
+                Position = UDim2.new(0, 56, 0, 30),
+                Text = "ID: " .. player.UserId,
+                TextColor3 = Color3.fromRGB(130, 145, 190),
+                TextSize = 11,
+                Font = Enum.Font.Gotham,
+                TextXAlignment = Enum.TextXAlignment.Left,
+            })
 
             local selectBtn = Instance.new("TextButton")
             selectBtn.Size = UDim2.new(0, 52, 0, 26)
@@ -673,14 +633,8 @@ local function buildTargetSelector()
             selectBtn.Font = Enum.Font.GothamBold
             selectBtn.Parent = row
 
-            local selectCorner = Instance.new("UICorner")
-            selectCorner.CornerRadius = UDim.new(0, 6)
-            selectCorner.Parent = selectBtn
-
-            local selectStroke = Instance.new("UIStroke")
-            selectStroke.Color = Color3.fromRGB(90, 65, 200)
-            selectStroke.Thickness = 1
-            selectStroke.Parent = selectBtn
+            addCorner(selectBtn, UDim.new(0, 6))
+            addStroke(selectBtn, Color3.fromRGB(90, 65, 200), 1)
 
             if selectedTarget == player then
                 selectedRow = row
@@ -737,14 +691,8 @@ local function buildTargetSelector()
     refreshBtn.Font = Enum.Font.GothamBold
     refreshBtn.Parent = ContentFrame
 
-    local refreshCorner = Instance.new("UICorner")
-    refreshCorner.CornerRadius = UDim.new(0, 8)
-    refreshCorner.Parent = refreshBtn
-
-    local refreshStroke = Instance.new("UIStroke")
-    refreshStroke.Color = Color3.fromRGB(60, 45, 110)
-    refreshStroke.Thickness = 1
-    refreshStroke.Parent = refreshBtn
+    addCorner(refreshBtn, UDim.new(0, 8))
+    addStroke(refreshBtn, Color3.fromRGB(60, 45, 110), 1)
 
     refreshBtn.MouseEnter:Connect(function()
         TweenService:Create(refreshBtn, TweenInfo.new(0.12), {BackgroundColor3 = Color3.fromRGB(38, 28, 68)}):Play()
